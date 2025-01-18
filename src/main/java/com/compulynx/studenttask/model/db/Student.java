@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.Data;
 
-import java.sql.Timestamp;
+
 import java.util.Date;
 
 @Entity
@@ -18,19 +18,23 @@ public class Student {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long studentId;
-
+    @Column(nullable = false)
     private String firstName;
+    @Column(nullable = false)
     private  String lastName;
     @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss", timezone="UTC -4")
+    @Column(nullable = false)
     private Date dateOfBirth;
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private StudentClass studentClass;
     @Max(85)
     @Min(55)
+    @Column(nullable = false)
     private int score;
     @Enumerated(EnumType.ORDINAL)
     @Column(columnDefinition = "int default 1")
     private Status status;
+    @Column(nullable = false)
     private String photoPath;
 
 }

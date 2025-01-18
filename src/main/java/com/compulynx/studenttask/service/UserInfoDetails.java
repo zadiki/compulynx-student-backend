@@ -1,16 +1,17 @@
 package com.compulynx.studenttask.service;
 
 import com.compulynx.studenttask.model.db.UserInfo;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class UserInfoDetails implements UserDetails {
     private  final String userName;
     private final String password;
@@ -41,6 +42,7 @@ public class UserInfoDetails implements UserDetails {
         return userName;
     }
 
+
     @Override
     public boolean isAccountNonExpired() {
         return UserDetails.super.isAccountNonExpired();
@@ -59,5 +61,14 @@ public class UserInfoDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+    public  static Optional<String> getLoggedInUser(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(!authentication.isAuthenticated()){
+            return Optional.empty();
+        }
+        var userName= authentication.getName();
+        return  Optional.of(userName);
+
     }
 }
