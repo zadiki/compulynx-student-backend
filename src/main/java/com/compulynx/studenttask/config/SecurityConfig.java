@@ -20,6 +20,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.List;
+
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -36,14 +42,20 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
-                .csrf(csrf->csrf.disable())
-                .authorizeHttpRequests(auth -> auth.requestMatchers( "/api/user/login","/api-docs","/api-docs/**","/swagger-ui/*","/swagger-ui.html").permitAll())
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/api/student/**").authenticated())
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/user/login", "/api-docs", "/api-docs/**", "/swagger-ui/*", "/swagger-ui.html")
+                        .permitAll())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/student/**")
+                        .authenticated())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
+                .cors()  // Enable CORS with updated approach
+                .and()
                 .build();
     }
     @Bean
@@ -62,6 +74,19 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
+    }
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration corsConfig = new CorsConfiguration();
+        corsConfig.setAllowedOrigins(List.of("http://localhost:4200")); // Set allowed origins
+        corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE")); // Allow specific methods
+        corsConfig.setAllowedHeaders(List.of("*"));  // Allow all headers
+        corsConfig.setAllowCredentials(true);  // Allow cookies/credentials
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", corsConfig);  // Apply to all paths
+
+        return source;
     }
 }
 

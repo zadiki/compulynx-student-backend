@@ -27,7 +27,7 @@ public class Student {
     private Date dateOfBirth;
     @Enumerated(EnumType.STRING)
     private StudentClass studentClass;
-    @Max(85)
+    @Max(95)
     @Min(55)
     @Column(nullable = false)
     private int score;

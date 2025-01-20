@@ -23,14 +23,13 @@ public class StudentTaskApplication {
 		return (args) -> {
 			// save a couple of system users
 			var user1 = new UserInfo();
-			user1.setUserName("ADMIN1");
-			user1.setPassword("ADMIN1");
+			user1.setUserName("admin");
+			user1.setPassword("admin");
 			var user2 = new UserInfo();
-			user2.setUserName("ADMIN2");
-			user2.setPassword("ADMIN2");
+			user2.setUserName("admin1");
+			user2.setPassword("admin1");
 			service.createUser(user1);
 			service.createUser(user2);
-
 
 			// fetch all customers
 			log.info("users found with findAll():");
