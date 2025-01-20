@@ -1,5 +1,6 @@
 package com.compulynx.studenttask.service;
 
+import com.compulynx.studenttask.exception.DataDoesNotExistException;
 import com.compulynx.studenttask.model.Status;
 import com.compulynx.studenttask.model.StudentClass;
 import com.compulynx.studenttask.model.db.Student;
@@ -27,6 +28,7 @@ import jakarta.persistence.criteria.Predicate;
 
 import java.util.List;
 
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 
@@ -255,16 +257,50 @@ public class StudentService {
             Status status,
             Pageable pageable
     ) {
-        return studentRepository.findAll(StudentSpecification.filterByFields(firstName, lastName, dob, studentClass, score, status), pageable);
+        return studentRepository.findAll(StudentSpecification.filterByFields(firstName, lastName, dob, studentClass, score, status,0), pageable);
     }
-     public static class StudentSpecification{
+
+    public void deleteStudent(Long id) {
+        var optionalStudent=studentRepository.findById(id);
+        if(optionalStudent.isPresent()){
+            var student=optionalStudent.get();
+            student.setDeleteStatus(1);
+            studentRepository.save(student);
+
+        }
+    }
+
+    public Student updateStudent(Long studentId, Student updatedStudent) throws Exception {
+        Optional<Student> existingStudent = studentRepository.findById(studentId);
+
+        if (existingStudent.isPresent()) {
+            Student student = existingStudent.get();
+
+            // Update the student's fields
+            student.setFirstName(updatedStudent.getFirstName());
+            student.setLastName(updatedStudent.getLastName());
+            student.setStatus(updatedStudent.getStatus());
+            student.setScore(updatedStudent.getScore());
+            student.setStudentClass(updatedStudent.getStudentClass());
+            student.setDateOfBirth(updatedStudent.getDateOfBirth());
+
+            return studentRepository.save(student);
+        }else {
+            throw new DataDoesNotExistException("student not found");
+        }
+
+
+    }
+
+    public static class StudentSpecification{
          public static Specification<Student> filterByFields(
                  String firstName,
                  String lastName,
                  Date dob,
                  StudentClass studentClass,
                  Integer score,
-                 Status status
+                 Status status,
+                 int deleteStatus
          ) {
              return (root, query, criteriaBuilder) -> {
                  List<Predicate> predicates = new ArrayList<>();
@@ -292,6 +328,8 @@ public class StudentService {
                  if (status != null) {
                      predicates.add(criteriaBuilder.equal(root.get("status"), status));
                  }
+
+                     predicates.add(criteriaBuilder.equal(root.get("deleteStatus"), deleteStatus));
 
                  return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
              };

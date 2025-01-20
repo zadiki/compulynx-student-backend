@@ -36,5 +36,9 @@ public class Student {
     private Status status;
     @Column(nullable = false)
     private String photoPath;
+    @Max(1)
+    @Min(0)
+    @Column(columnDefinition = "int default 0")
+    private int deleteStatus;
 
 }

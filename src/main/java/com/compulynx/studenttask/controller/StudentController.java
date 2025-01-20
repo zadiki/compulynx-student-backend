@@ -13,11 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
@@ -48,27 +47,45 @@ public class StudentController {
     }
 
     @GetMapping("/generateStudentsExcel")
-    public List<Student> generateStudents(@RequestParam @Min(0) @Max(10000) int count) throws Exception {
+    public ResponseEntity<List<Student>> generateStudents(@RequestParam @Min(0) @Max(10000) int count) throws Exception {
         var students = studentService.generateStudentList(count);
         loggedInUserName = UserInfoDetails.getLoggedInUser().orElseThrow();
         var fileToCreate = loggedInUserName + ".xlsx";
         studentService.generateStudentListExcel(students, fileToCreate);
-        return students;
+        return ResponseEntity.status(HttpStatus.CREATED).body(students);
     }
 
     @GetMapping("/generateStudentsCSV")
-    public List<Student> generateStudentsCSVfromExcel() throws Exception {
+    public ResponseEntity<List<Student>> generateStudentsCSVfromExcel() throws Exception {
         loggedInUserName = UserInfoDetails.getLoggedInUser().orElseThrow();
         var fileToCreate = loggedInUserName + ".csv";
         var fileToRead = loggedInUserName + ".xlsx";
-        return studentService.generateStudentsCSVfromExcel(fileToRead, fileToCreate);
-
+        var students = studentService.generateStudentsCSVfromExcel(fileToRead, fileToCreate);
+        return ResponseEntity.status(HttpStatus.CREATED).body(students);
     }
 
     @GetMapping("/saveGeneratedStudents")
-    public List<Student> saveGeneratedStudents() throws Exception {
+    public ResponseEntity<List<Student>> saveGeneratedStudents() throws Exception {
         loggedInUserName = UserInfoDetails.getLoggedInUser().orElseThrow();
         var fileName = loggedInUserName + ".xlsx";
-        return studentService.saveGeneratedStudents(fileName);
+        var students = studentService.saveGeneratedStudents(fileName);
+        return ResponseEntity.status(HttpStatus.CREATED).body(students);
+    }
+
+    @DeleteMapping("/{studentId}")
+    public ResponseEntity<String> deleteStudent(@PathVariable("studentId") Long studentId) {
+        try {
+            studentService.deleteStudent(studentId);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Student deleted successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Student not found.");
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Student> updateStudent(@PathVariable("id") Long id, @RequestBody Student updatedStudent) throws Exception {
+        Student student = studentService.updateStudent(id, updatedStudent);
+        return ResponseEntity.ok(student); // Return the updated student
+
     }
 }
