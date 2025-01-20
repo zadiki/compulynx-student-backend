@@ -1,8 +1,10 @@
 package com.compulynx.studenttask.controller;
 
+import com.compulynx.studenttask.exception.DataDoesNotExistException;
 import com.compulynx.studenttask.model.Status;
 import com.compulynx.studenttask.model.StudentClass;
 import com.compulynx.studenttask.model.db.Student;
+import com.compulynx.studenttask.service.FileUploadService;
 import com.compulynx.studenttask.service.StudentService;
 import com.compulynx.studenttask.service.UserInfoDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,7 +19,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -29,6 +33,8 @@ public class StudentController {
 
     @Autowired
     private StudentService studentService;
+    @Autowired
+    private FileUploadService fileUploadService;
     String loggedInUserName;
 
     @GetMapping("/")
@@ -85,7 +91,27 @@ public class StudentController {
     @PutMapping("/{id}")
     public ResponseEntity<Student> updateStudent(@PathVariable("id") Long id, @RequestBody Student updatedStudent) throws Exception {
         Student student = studentService.updateStudent(id, updatedStudent);
+
         return ResponseEntity.ok(student); // Return the updated student
 
+    }
+
+
+    @PutMapping("/upload/{id}")
+    public ResponseEntity<Student> uploadImage(@RequestParam("image") MultipartFile file,@PathVariable("id") Long id ) throws IOException {
+
+        var optionalStudent=studentService.findStudentById(id);
+        if(optionalStudent.isEmpty()){
+            throw new DataDoesNotExistException("Provided student id does not exist");
+        }
+        if (file.isEmpty()) {
+            throw new IOException("No file uploaded.");
+        }
+        String uploadedFilePath=fileUploadService.imageUpload(file);
+        var student=optionalStudent.get();
+        student.setPhotoPath(uploadedFilePath);
+        studentService.updateStudent(student);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(student);
     }
 }

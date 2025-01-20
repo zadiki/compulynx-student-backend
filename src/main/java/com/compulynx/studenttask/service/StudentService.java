@@ -24,6 +24,7 @@ import java.io.FileWriter;
 
 import java.util.ArrayList;
 import java.util.Date;
+
 import jakarta.persistence.criteria.Predicate;
 
 import java.util.List;
@@ -72,11 +73,11 @@ public class StudentService {
     }
 
     public List<Student> saveGeneratedStudents(String fileName) throws Exception {
-        var listFromExcel=readStudentListExcel(fileName);
-        var students= new ArrayList<Student>();
-        for (Student student:listFromExcel){
+        var listFromExcel = readStudentListExcel(fileName);
+        var students = new ArrayList<Student>();
+        for (Student student : listFromExcel) {
             student.setStudentId(null);
-            student.setScore(student.getScore()+5);
+            student.setScore(student.getScore() + 5);
             students.add(student);
 
         }
@@ -234,40 +235,38 @@ public class StudentService {
         return filePath;
     }
 
-    public List<Student> generateStudentsCSVfromExcel(String fileToRead,String fileToGenerate) throws Exception {
-        var students=readStudentListExcel(fileToRead);
-        var newStudentsList= new ArrayList<Student>();
-        for(Student student:students){
-            student.setScore(student.getScore()+10);
+    public List<Student> generateStudentsCSVfromExcel(String fileToRead, String fileToGenerate) throws Exception {
+        var students = readStudentListExcel(fileToRead);
+        var newStudentsList = new ArrayList<Student>();
+        for (Student student : students) {
+            student.setScore(student.getScore() + 10);
             newStudentsList.add(student);
         }
-        generateStudentListCsv(newStudentsList,fileToGenerate);
+        generateStudentListCsv(newStudentsList, fileToGenerate);
         return newStudentsList;
     }
 
     public List<Student> getAllStudents() {
         return studentRepository.findAll();
     }
-    public Page<Student> filterStudents(
-            String firstName,
-            String lastName,
-            Date dob,
-            StudentClass studentClass,
-            Integer score,
-            Status status,
-            Pageable pageable
-    ) {
-        return studentRepository.findAll(StudentSpecification.filterByFields(firstName, lastName, dob, studentClass, score, status,0), pageable);
+
+    public Page<Student> filterStudents(String firstName, String lastName, Date dob, StudentClass studentClass, Integer score, Status status, Pageable pageable) {
+        return studentRepository.findAll(StudentSpecification.filterByFields(firstName, lastName, dob, studentClass, score, status, 0), pageable);
     }
 
     public void deleteStudent(Long id) {
-        var optionalStudent=studentRepository.findById(id);
-        if(optionalStudent.isPresent()){
-            var student=optionalStudent.get();
+        var optionalStudent = studentRepository.findById(id);
+        if (optionalStudent.isPresent()) {
+            var student = optionalStudent.get();
             student.setDeleteStatus(1);
             studentRepository.save(student);
 
         }
+    }
+
+    public Student updateStudent(Student student){
+        studentRepository.save(student);
+        return student;
     }
 
     public Student updateStudent(Long studentId, Student updatedStudent) throws Exception {
@@ -285,54 +284,50 @@ public class StudentService {
             student.setDateOfBirth(updatedStudent.getDateOfBirth());
 
             return studentRepository.save(student);
-        }else {
+        } else {
             throw new DataDoesNotExistException("student not found");
         }
 
 
     }
 
-    public static class StudentSpecification{
-         public static Specification<Student> filterByFields(
-                 String firstName,
-                 String lastName,
-                 Date dob,
-                 StudentClass studentClass,
-                 Integer score,
-                 Status status,
-                 int deleteStatus
-         ) {
-             return (root, query, criteriaBuilder) -> {
-                 List<Predicate> predicates = new ArrayList<>();
+    public Optional<Student> findStudentById(Long id) {
+        return studentRepository.findById(id);
+    }
 
-                 if (firstName != null && !firstName.isEmpty()) {
-                     predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("firstName")), "%" + firstName.toLowerCase() + "%"));
-                 }
+    public static class StudentSpecification {
+        public static Specification<Student> filterByFields(String firstName, String lastName, Date dob, StudentClass studentClass, Integer score, Status status, int deleteStatus) {
+            return (root, query, criteriaBuilder) -> {
+                List<Predicate> predicates = new ArrayList<>();
 
-                 if (lastName != null && !lastName.isEmpty()) {
-                     predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("lastName")), "%" + lastName.toLowerCase() + "%"));
-                 }
+                if (firstName != null && !firstName.isEmpty()) {
+                    predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("firstName")), "%" + firstName.toLowerCase() + "%"));
+                }
 
-                 if (dob != null) {
-                     predicates.add(criteriaBuilder.equal(root.get("dateOfBirth"), dob));
-                 }
+                if (lastName != null && !lastName.isEmpty()) {
+                    predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("lastName")), "%" + lastName.toLowerCase() + "%"));
+                }
 
-                 if (studentClass != null) {
-                     predicates.add(criteriaBuilder.equal(root.get("studentClass"), studentClass));
-                 }
+                if (dob != null) {
+                    predicates.add(criteriaBuilder.equal(root.get("dateOfBirth"), dob));
+                }
 
-                 if (score != null) {
-                     predicates.add(criteriaBuilder.equal(root.get("score"), score));
-                 }
+                if (studentClass != null) {
+                    predicates.add(criteriaBuilder.equal(root.get("studentClass"), studentClass));
+                }
 
-                 if (status != null) {
-                     predicates.add(criteriaBuilder.equal(root.get("status"), status));
-                 }
+                if (score != null) {
+                    predicates.add(criteriaBuilder.equal(root.get("score"), score));
+                }
 
-                     predicates.add(criteriaBuilder.equal(root.get("deleteStatus"), deleteStatus));
+                if (status != null) {
+                    predicates.add(criteriaBuilder.equal(root.get("status"), status));
+                }
 
-                 return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-             };
-         }
-     }
+                predicates.add(criteriaBuilder.equal(root.get("deleteStatus"), deleteStatus));
+
+                return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+            };
+        }
+    }
 }
