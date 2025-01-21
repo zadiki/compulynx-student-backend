@@ -7,6 +7,7 @@ import com.compulynx.studenttask.model.db.Student;
 import com.compulynx.studenttask.service.FileUploadService;
 import com.compulynx.studenttask.service.StudentService;
 import com.compulynx.studenttask.service.UserInfoDetails;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -35,6 +36,8 @@ public class StudentController {
     private StudentService studentService;
     @Autowired
     private FileUploadService fileUploadService;
+    @Autowired
+    private  ObjectMapper objectMapper;
     String loggedInUserName;
 
     @GetMapping("/")
@@ -98,7 +101,7 @@ public class StudentController {
 
 
     @PutMapping("/upload/{id}")
-    public ResponseEntity<Student> uploadImage(@RequestParam("image") MultipartFile file,@PathVariable("id") Long id ) throws IOException {
+    public ResponseEntity<Student> uploadImage(@RequestParam("image") MultipartFile file,@PathVariable("id") Long id, @RequestParam("studentData") String studentDataJson ) throws Exception {
 
         var optionalStudent=studentService.findStudentById(id);
         if(optionalStudent.isEmpty()){
@@ -107,11 +110,15 @@ public class StudentController {
         if (file.isEmpty()) {
             throw new IOException("No file uploaded.");
         }
-        String uploadedFilePath=fileUploadService.imageUpload(file);
-        var student=optionalStudent.get();
-        student.setPhotoPath(uploadedFilePath);
-        studentService.updateStudent(student);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(student);
+        Student studentDTO = objectMapper.readValue(studentDataJson, Student.class);
+
+
+        String uploadedFilePath=fileUploadService.imageUpload(file);
+
+        studentDTO.setPhotoPath(uploadedFilePath);
+        studentService.updateStudent(studentDTO);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(studentDTO);
     }
 }

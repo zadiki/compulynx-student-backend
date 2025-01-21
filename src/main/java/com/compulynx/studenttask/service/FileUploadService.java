@@ -15,7 +15,7 @@ import java.util.Objects;
 @Service
 public class FileUploadService {
 
-    private static final String UPLOAD_DIR = "src/main/resources/static/images/";
+    private static final String UPLOAD_DIR = "static/images/";
 
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;
 
@@ -48,7 +48,7 @@ public class FileUploadService {
 
         // Closing the connection
         fout.close();
-        return "/images/"+newFilename;
+        return "http://localhost:8080/images/"+newFilename;
 
     }
 }
