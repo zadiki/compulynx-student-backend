@@ -21,16 +21,12 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
-
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.*;
 
 import jakarta.persistence.criteria.Predicate;
 
-import java.util.List;
-
-import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
+
 
 
 @Slf4j
@@ -61,7 +57,9 @@ public class StudentService {
             fakeStudent.setFirstName(faker.name().firstName());
             fakeStudent.setLastName(faker.name().lastName());
             fakeStudent.setScore(faker.number().numberBetween(55, 85));
-            fakeStudent.setPhotoPath(faker.avatar().image());
+//            fakeStudent.setPhotoPath(faker.avatar().image());
+            fakeStudent.setPhotoPath(
+                    "https://i.pravatar.cc?img="+( new Random()).nextInt(50,60));
             fakeStudent.setStudentClass(StudentClass.values()[ThreadLocalRandom.current().nextInt(StudentClass.values().length)]);
             fakeStudent.setStatus(Status.values()[ThreadLocalRandom.current().nextInt(Status.values().length)]);
             fakeStudent.setDateOfBirth(faker.date().birthday(14, 24));
@@ -295,6 +293,7 @@ public class StudentService {
         return studentRepository.findById(id);
     }
 
+
     public static class StudentSpecification {
         public static Specification<Student> filterByFields(String firstName, String lastName, Date dob, StudentClass studentClass, Integer score, Status status, int deleteStatus) {
             return (root, query, criteriaBuilder) -> {
@@ -316,7 +315,7 @@ public class StudentService {
                     predicates.add(criteriaBuilder.equal(root.get("studentClass"), studentClass));
                 }
 
-                if (score != null) {
+                if (score != null ) {
                     predicates.add(criteriaBuilder.equal(root.get("score"), score));
                 }
 
