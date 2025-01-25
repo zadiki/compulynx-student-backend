@@ -15,6 +15,12 @@ import java.util.Date;
 @Table(name = "students")
 @Data
 public class Student {
+
+    public static final int STUDENT_REQUIRED_ACTION_TYPE_NONE=0;
+    public static final int STUDENT_REQUIRED_ACTION_TYPE_EXIST=1;
+    public static final int STUDENT_REQUIRED_ACTION_TYPE_ALL=2;
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long studentId;
@@ -34,6 +40,8 @@ public class Student {
     @Enumerated(EnumType.ORDINAL)
     @Column(columnDefinition = "int default 1")
     private Status status;
+    @Column(columnDefinition = "int default 0")
+    private int actionsPendingApproval;
     @Column(nullable = false)
     private String photoPath;
     @Max(1)

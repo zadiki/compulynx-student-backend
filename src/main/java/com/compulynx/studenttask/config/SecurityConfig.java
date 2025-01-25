@@ -49,7 +49,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/user/login", "/api-docs", "/api-docs/**", "/images/**","/swagger-ui/*", "/swagger-ui.html")
                         .permitAll())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/student/**")
+                        .requestMatchers("/api/student/**","/api/logs")
                         .authenticated())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())

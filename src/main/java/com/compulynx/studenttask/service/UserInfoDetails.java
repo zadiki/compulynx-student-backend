@@ -62,13 +62,5 @@ public class UserInfoDetails implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-    public  static Optional<String> getLoggedInUser(){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(!authentication.isAuthenticated()){
-            return Optional.empty();
-        }
-        var userName= authentication.getName();
-        return  Optional.of(userName);
 
-    }
 }

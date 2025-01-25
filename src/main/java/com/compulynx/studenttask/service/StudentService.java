@@ -4,7 +4,9 @@ import com.compulynx.studenttask.exception.DataDoesNotExistException;
 import com.compulynx.studenttask.model.Status;
 import com.compulynx.studenttask.model.StudentClass;
 import com.compulynx.studenttask.model.db.Student;
+import com.compulynx.studenttask.model.db.StudentLog;
 import com.compulynx.studenttask.repository.StudentRepository;
+import com.compulynx.studenttask.util.Constants;
 import com.github.javafaker.Faker;
 import com.opencsv.CSVWriter;
 import lombok.extern.slf4j.Slf4j;
@@ -248,8 +250,8 @@ public class StudentService {
         return studentRepository.findAll();
     }
 
-    public Page<Student> filterStudents(String firstName, String lastName, Date dob, StudentClass studentClass, Integer score, Status status, Pageable pageable) {
-        return studentRepository.findAll(StudentSpecification.filterByFields(firstName, lastName, dob, studentClass, score, status, 0), pageable);
+    public Page<Student> filterStudents(String firstName, String lastName, Date dob, StudentClass studentClass, Integer score, Status status, Pageable pageable,int pendingTask) {
+        return studentRepository.findAll(StudentSpecification.filterByFields(firstName, lastName, dob, studentClass, score, status, 0,pendingTask), pageable);
     }
 
     public void deleteStudent(Long id) {
@@ -295,7 +297,7 @@ public class StudentService {
 
 
     public static class StudentSpecification {
-        public static Specification<Student> filterByFields(String firstName, String lastName, Date dob, StudentClass studentClass, Integer score, Status status, int deleteStatus) {
+        public static Specification<Student> filterByFields(String firstName, String lastName, Date dob, StudentClass studentClass, Integer score, Status status, int deleteStatus, int pendingTask) {
             return (root, query, criteriaBuilder) -> {
                 List<Predicate> predicates = new ArrayList<>();
 
@@ -321,6 +323,10 @@ public class StudentService {
 
                 if (status != null) {
                     predicates.add(criteriaBuilder.equal(root.get("status"), status));
+                }
+
+                if (pendingTask== Student.STUDENT_REQUIRED_ACTION_TYPE_NONE ||pendingTask==Student.STUDENT_REQUIRED_ACTION_TYPE_EXIST) {
+                    predicates.add(criteriaBuilder.greaterThan(root.get("actionsPendingApproval"), pendingTask));
                 }
 
                 predicates.add(criteriaBuilder.equal(root.get("deleteStatus"), deleteStatus));

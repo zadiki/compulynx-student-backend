@@ -11,17 +11,22 @@ import java.sql.Timestamp;
 @Data
 @Entity
 public class StudentLog {
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long createdBy;
-    private Long studentId;
+    @ManyToOne()
+    private Student student;
     private ActionType actionType;
     private String oldValue;
     private String newValue;
-    private ActionStatus status;
+    private ActionStatus actionStatus;
     private String comment;
-    private Long approvedBy;
+    @ManyToOne
+    private UserInfo approvedByUser;
+    @ManyToOne
+    private UserInfo createdByUser;
     @CreationTimestamp
     private Timestamp creationDate;
     private Timestamp updateDate;
