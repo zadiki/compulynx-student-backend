@@ -325,8 +325,11 @@ public class StudentService {
                     predicates.add(criteriaBuilder.equal(root.get("status"), status));
                 }
 
-                if (pendingTask== Student.STUDENT_REQUIRED_ACTION_TYPE_NONE ||pendingTask==Student.STUDENT_REQUIRED_ACTION_TYPE_EXIST) {
+                if (pendingTask==Student.STUDENT_REQUIRED_ACTION_TYPE_EXIST) {
                     predicates.add(criteriaBuilder.greaterThan(root.get("actionsPendingApproval"), pendingTask));
+                }
+                if (pendingTask== Student.STUDENT_REQUIRED_ACTION_TYPE_NONE) {
+                    predicates.add(criteriaBuilder.equal(root.get("actionsPendingApproval"), pendingTask));
                 }
 
                 predicates.add(criteriaBuilder.equal(root.get("deleteStatus"), deleteStatus));
