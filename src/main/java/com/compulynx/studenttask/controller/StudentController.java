@@ -106,7 +106,7 @@ public class StudentController {
     @PutMapping("/{id}")
     public ResponseEntity<Student> updateStudent(@PathVariable("id") Long id, @RequestBody Student updatedStudent) throws Exception {
 //        Student student = studentService.updateStudent(id, updatedStudent);
-
+        loggedInUser = userUtil.getLoggedInUser().orElseThrow();
         if (!Objects.equals(updatedStudent.getStudentId(), id))
             throw new DataDoesNotExistException("path id and body id do not match");
 

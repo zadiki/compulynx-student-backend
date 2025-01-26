@@ -111,9 +111,11 @@ public class StudentService {
             dataRow.createCell(0).setCellValue(student.getStudentId() == null ? 0 : student.getStudentId());
             dataRow.createCell(1).setCellValue(student.getFirstName());
             dataRow.createCell(2).setCellValue(student.getLastName());
+
             HSSFCell dateCell = dataRow.createCell(3);
             dateCell.setCellValue(student.getDateOfBirth());
             dateCell.setCellStyle(dateCellStyle);
+
             dataRow.createCell(4).setCellValue(student.getStudentClass().name());
             dataRow.createCell(5).setCellValue(student.getScore());
             dataRow.createCell(6).setCellValue(student.getStatus().name());

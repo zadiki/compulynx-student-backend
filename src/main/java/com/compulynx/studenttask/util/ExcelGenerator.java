@@ -1,6 +1,9 @@
 package com.compulynx.studenttask.util;
 
 import com.compulynx.studenttask.model.db.Student;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFDataFormat;
+import org.apache.poi.ss.format.CellFormat;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -16,7 +19,7 @@ public class ExcelGenerator {
 
         // Header row
         Row headerRow = sheet.createRow(0);
-        String[] headers = {"ID", "Fname", "Lname","DOB","class","score","status","photo"};
+        String[] headers = {"ID", "Fname", "Lname", "DOB", "class", "score", "status", "photo"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
@@ -30,7 +33,15 @@ public class ExcelGenerator {
             row.createCell(0).setCellValue(student.getStudentId());
             row.createCell(1).setCellValue(student.getFirstName());
             row.createCell(2).setCellValue(student.getLastName());
-            row.createCell(3).setCellValue(student.getDateOfBirth());
+
+            CellStyle dateCellStyle = workbook.createCellStyle();
+            DataFormat dateFormat = workbook.createDataFormat();
+            dateCellStyle.setDataFormat(dateFormat.getFormat("dd-mm-yyyy"));
+
+            var dateCell = row.createCell(3);
+            dateCell.setCellValue(student.getDateOfBirth());
+            dateCell.setCellStyle(dateCellStyle);
+
             row.createCell(4).setCellValue(student.getStudentClass().name());
             row.createCell(5).setCellValue(student.getScore());
             row.createCell(6).setCellValue(student.getStatus().name());
