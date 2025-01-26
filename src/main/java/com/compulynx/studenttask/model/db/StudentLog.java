@@ -22,7 +22,7 @@ public class StudentLog {
     private String oldValue;
     private String newValue;
     private ActionStatus actionStatus;
-    private String comment;
+    private String comment="";
     @ManyToOne
     private UserInfo approvedByUser;
     @ManyToOne

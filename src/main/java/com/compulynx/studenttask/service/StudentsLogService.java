@@ -36,9 +36,9 @@ public class StudentsLogService {
     }
 
     @Transactional
-    private void createNewStudentLogs(UserInfo loggedInUser, Student existingStudent,List<StudentLogRequest> studentLogRequests) {
+    private void createNewStudentLogs(UserInfo loggedInUser, Student existingStudent, List<StudentLogRequest> studentLogRequests) {
 
-        for(StudentLogRequest studentLogRequest:studentLogRequests) {
+        for (StudentLogRequest studentLogRequest : studentLogRequests) {
             var newStudentLog = new StudentLog();
             switch (studentLogRequest.getActionType()) {
                 case STATUS_CHANGE -> {
@@ -75,7 +75,6 @@ public class StudentsLogService {
         studentRepository.save(existingStudent);
 
 
-
     }
 
     @Transactional
@@ -90,7 +89,8 @@ public class StudentsLogService {
 
         existingStudentLog.setActionStatus(studentLog.getActionStatus());
         existingStudentLog.setUpdateDate(Timestamp.from(Instant.now()));
-        if (!studentLog.getComment().isEmpty()) existingStudentLog.setComment(studentLog.getComment());
+        if (studentLog.getComment() != null && !studentLog.getComment().isEmpty())
+            existingStudentLog.setComment(studentLog.getComment());
 
         if (student.getActionsPendingApproval() > 0) {
             student.setActionsPendingApproval(student.getActionsPendingApproval() - 1);
@@ -117,52 +117,52 @@ public class StudentsLogService {
     }
 
     public void cresteStudentLogsFromNewStudent(UserInfo loggedInUser, Student studentDTO) {
-        var logList= new ArrayList<StudentLogRequest>();
-        var studentInDb=studentRepository.findById(studentDTO.getStudentId()).orElseThrow();
-        if(studentDTO.getFirstName() != null && !studentDTO.getFirstName().equals(studentInDb.getFirstName())){
-            var logRequest= new StudentLogRequest();
+        var logList = new ArrayList<StudentLogRequest>();
+        var studentInDb = studentRepository.findById(studentDTO.getStudentId()).orElseThrow();
+        if (studentDTO.getFirstName() != null && !studentDTO.getFirstName().equals(studentInDb.getFirstName())) {
+            var logRequest = new StudentLogRequest();
             logRequest.setStudentId(studentInDb.getStudentId());
             logRequest.setActionType(ActionType.FNAME_CHANGE);
             logRequest.setNewValue(studentDTO.getFirstName());
             logList.add(logRequest);
         }
-        if(studentDTO.getLastName() != null && !studentDTO.getLastName().equals(studentInDb.getLastName())){
-            var logRequest= new StudentLogRequest();
+        if (studentDTO.getLastName() != null && !studentDTO.getLastName().equals(studentInDb.getLastName())) {
+            var logRequest = new StudentLogRequest();
             logRequest.setStudentId(studentInDb.getStudentId());
             logRequest.setActionType(ActionType.LNAME_CHANGE);
             logRequest.setNewValue(studentDTO.getLastName());
             logList.add(logRequest);
         }
-        if(studentDTO.getStudentClass() != null && !studentDTO.getStudentClass().equals(studentInDb.getStudentClass())){
-            var logRequest= new StudentLogRequest();
+        if (studentDTO.getStudentClass() != null && !studentDTO.getStudentClass().equals(studentInDb.getStudentClass())) {
+            var logRequest = new StudentLogRequest();
             logRequest.setStudentId(studentInDb.getStudentId());
             logRequest.setActionType(ActionType.CLASS_CHANGE);
             logRequest.setNewValue(studentDTO.getStudentClass().name());
             logList.add(logRequest);
         }
-        if( studentDTO.getScore() !=studentInDb.getScore()){
-            var logRequest= new StudentLogRequest();
+        if (studentDTO.getScore() != studentInDb.getScore()) {
+            var logRequest = new StudentLogRequest();
             logRequest.setStudentId(studentInDb.getStudentId());
             logRequest.setActionType(ActionType.SCORE_CHANGE);
             logRequest.setNewValue(String.valueOf(studentDTO.getScore()));
             logList.add(logRequest);
         }
-        if(studentDTO.getPhotoPath() != null && !studentDTO.getPhotoPath().equals(studentInDb.getPhotoPath())){
-            var logRequest= new StudentLogRequest();
+        if (studentDTO.getPhotoPath() != null && !studentDTO.getPhotoPath().equals(studentInDb.getPhotoPath())) {
+            var logRequest = new StudentLogRequest();
             logRequest.setStudentId(studentInDb.getStudentId());
             logRequest.setActionType(ActionType.PHOTO_CHANGE);
             logRequest.setNewValue(studentDTO.getPhotoPath());
             logList.add(logRequest);
         }
-        if(studentDTO.getStatus() != null && !studentDTO.getStatus().equals(studentInDb.getStatus())){
-            var logRequest= new StudentLogRequest();
+        if (studentDTO.getStatus() != null && !studentDTO.getStatus().equals(studentInDb.getStatus())) {
+            var logRequest = new StudentLogRequest();
             logRequest.setStudentId(studentInDb.getStudentId());
             logRequest.setActionType(ActionType.STATUS_CHANGE);
             logRequest.setNewValue(studentDTO.getStatus().name());
             logList.add(logRequest);
         }
 
-        createNewStudentLogs(loggedInUser,studentInDb,logList);
+        createNewStudentLogs(loggedInUser, studentInDb, logList);
 
     }
 }
