@@ -4,7 +4,7 @@ import com.compulynx.studenttask.exception.DataDoesNotExistException;
 import com.compulynx.studenttask.model.Status;
 import com.compulynx.studenttask.model.StudentClass;
 import com.compulynx.studenttask.model.db.Student;
-import com.compulynx.studenttask.model.db.UserInfo;
+
 import com.compulynx.studenttask.service.FileUploadService;
 import com.compulynx.studenttask.service.StudentService;
 
@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import org.hibernate.exception.DataException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -46,7 +46,7 @@ public class StudentController {
     private ObjectMapper objectMapper;
     @Autowired
     private UserUtil userUtil;
-    private UserInfo loggedInUser;
+
     @Autowired
     private StudentsLogService studentsLogService;
 
@@ -70,7 +70,7 @@ public class StudentController {
     @GetMapping("/generateStudentsExcel")
     public ResponseEntity<List<Student>> generateStudents(@RequestParam @Min(0) @Max(100000) int count) throws Exception {
         var students = studentService.generateStudentList(count);
-        loggedInUser = userUtil.getLoggedInUser().orElseThrow();
+        var loggedInUser = userUtil.getLoggedInUser().orElseThrow();
         var fileToCreate = loggedInUser.getUserName() + ".xlsx";
         studentService.generateStudentListExcel(students, fileToCreate);
         return ResponseEntity.status(HttpStatus.CREATED).body(students);
@@ -78,7 +78,7 @@ public class StudentController {
 
     @GetMapping("/generateStudentsCSV")
     public ResponseEntity<List<Student>> generateStudentsCSVfromExcel() throws Exception {
-        loggedInUser = userUtil.getLoggedInUser().orElseThrow();
+       var  loggedInUser = userUtil.getLoggedInUser().orElseThrow();
         var fileToCreate = loggedInUser.getUserName() + ".csv";
         var fileToRead = loggedInUser.getUserName() + ".xlsx";
         var students = studentService.generateStudentsCSVfromExcel(fileToRead, fileToCreate);
@@ -87,7 +87,7 @@ public class StudentController {
 
     @GetMapping("/saveGeneratedStudents")
     public ResponseEntity<List<Student>> saveGeneratedStudents() throws Exception {
-        loggedInUser = userUtil.getLoggedInUser().orElseThrow();
+        var loggedInUser = userUtil.getLoggedInUser().orElseThrow();
         var fileName = loggedInUser.getUserName() + ".xlsx";
         var students = studentService.saveGeneratedStudents(fileName);
         return ResponseEntity.status(HttpStatus.CREATED).body(students);
@@ -106,7 +106,7 @@ public class StudentController {
     @PutMapping("/{id}")
     public ResponseEntity<Student> updateStudent(@PathVariable("id") Long id, @RequestBody Student updatedStudent) throws Exception {
 //        Student student = studentService.updateStudent(id, updatedStudent);
-        loggedInUser = userUtil.getLoggedInUser().orElseThrow();
+        var loggedInUser = userUtil.getLoggedInUser().orElseThrow();
         if (!Objects.equals(updatedStudent.getStudentId(), id))
             throw new DataDoesNotExistException("path id and body id do not match");
 
@@ -138,7 +138,7 @@ public class StudentController {
         studentDTO.setPhotoPath(uploadedFilePath);
 
         // studentService.updateStudent(studentDTO);
-        loggedInUser = userUtil.getLoggedInUser().orElseThrow();
+        var loggedInUser = userUtil.getLoggedInUser().orElseThrow();
         studentsLogService.cresteStudentLogsFromNewStudent(loggedInUser, studentDTO);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(studentDTO);
